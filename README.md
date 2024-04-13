@@ -1,4 +1,4 @@
-# Neuro Bird
+# Neuro Birds
 
 ![C](https://badgen.net/badge/MADE-WITH/C)
 ![LICENSE](https://badgen.net/badge/LICENSE/MIT/green)
