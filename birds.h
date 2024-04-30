@@ -16,7 +16,7 @@ GAME_Bird GAME_CreateBird()
 	bird.score = 0;
 	bird.fit = 0;
 	bird.velocity = 0;
-	bird.gravity = 5;
+	bird.gravity = GRAVITY;
 	bird.is_alive = 1;
 	bird.rect.x = (int)(rand() % (SCREEN_WIDTH / 4)) + SCREEN_WIDTH / 8;
 	bird.rect.y = SCREEN_HEIGHT / 2;
@@ -27,7 +27,7 @@ GAME_Bird GAME_CreateBird()
 
 void GAME_CreateFirstBirdGeneration(GAME_Bird *bird)
 {
-	for (int i = 0; i < NUMBER_OF_BIRDS_PER_GENERATION; i++)
+	for (int i = 0; i < N_MAX_BIRDS; i++)
 		bird[i] = GAME_CreateBird();
 }
 
@@ -86,24 +86,24 @@ void GAME_BirdThink(GAME_Bird *bird, GAME_Pipe *pipe)
 		GAME_BirdJump(bird);
 };
 
-void GAME_UpdateBirds(SDL_Renderer *renderer, SDL_Texture *texture, GAME_Bird *birds, GAME_Pipe *pipe)
+void GAME_UpdateBirds(SDL_Renderer *renderer, SDL_Texture *texture, GAME_Bird *birds, GAME_Pipe *pipes)
 {
-	for (int i = 0; i < NUMBER_OF_BIRDS_PER_GENERATION; i++)
+	for (int i = 0; i < N_MAX_BIRDS; i++)
 	{
 		if (birds[i].is_alive)
 		{
 			birds[i].score += 1;
-			if (birds[i].rect.x > pipe->top.x + pipe->top.w && pipe->next != NULL)
+			if (birds[i].rect.x > pipes[0].top.x + pipes[0].top.w && !pipes[0].last)
 			{
-				GAME_BirdThink(&birds[i], pipe->next);
-				GAME_RenderBirdLines(renderer, birds[i], pipe->next);
-				birds[i].is_alive = GAME_CheckCollide(birds[i], pipe->next);
+				GAME_BirdThink(&birds[i], &pipes[1]);
+				GAME_RenderBirdLines(renderer, birds[i], &pipes[1]);
+				birds[i].is_alive = GAME_CheckCollide(birds[i], &pipes[1]);
 			}
 			else
 			{
-				GAME_BirdThink(&birds[i], pipe);
-				GAME_RenderBirdLines(renderer, birds[i], pipe);
-				birds[i].is_alive = GAME_CheckCollide(birds[i], pipe);
+				GAME_BirdThink(&birds[i], &pipes[0]);
+				GAME_RenderBirdLines(renderer, birds[i], &pipes[0]);
+				birds[i].is_alive = GAME_CheckCollide(birds[i], &pipes[0]);
 			};
 		}
 		else
@@ -119,7 +119,7 @@ void GAME_UpdateBirds(SDL_Renderer *renderer, SDL_Texture *texture, GAME_Bird *b
 int GAME_GetNumberOfBirdsAlive(GAME_Bird *birds)
 {
 	int sum = 0;
-	for (int i = 0; i < NUMBER_OF_BIRDS_PER_GENERATION; i++)
+	for (int i = 0; i < N_MAX_BIRDS; i++)
 		sum += birds[i].is_alive == 1 ? 1 : 0;
 	return sum;
 }
@@ -127,11 +127,11 @@ int GAME_GetNumberOfBirdsAlive(GAME_Bird *birds)
 void GAME_CalculateFit(GAME_Bird *birds)
 {
 	double sum = 0;
-	for (int i = 0; i < NUMBER_OF_BIRDS_PER_GENERATION; i++)
+	for (int i = 0; i < N_MAX_BIRDS; i++)
 	{
 		sum += birds[i].score;
 	}
-	for (int i = 0; i < NUMBER_OF_BIRDS_PER_GENERATION; i++)
+	for (int i = 0; i < N_MAX_BIRDS; i++)
 	{
 		birds[i].fit = (double)birds[i].score / (double)sum;
 	}
@@ -193,20 +193,21 @@ GAME_Bird GAME_CrossOverBirds(GAME_Bird bird1, GAME_Bird bird2)
 	return bird1;
 }
 
-GAME_Bird *GAME_CreateNextBirdsGeneration(GAME_Bird *birds)
+void GAME_CreateNextBirdsGeneration(GAME_Bird *birds)
 {
-	GAME_Bird new_generation[NUMBER_OF_BIRDS_PER_GENERATION];
+	GAME_Bird new_generation[N_MAX_BIRDS];
 
-	for (int i = 0; i < NUMBER_OF_BIRDS_PER_GENERATION; i += 2)
+	for (int i = 0; i < N_MAX_BIRDS; i += 2)
 	{
 		GAME_Bird mutate = GAME_MutateBird(GAME_PickOneBirdBasedOnFitness(birds));
 		GAME_Bird cross = GAME_CrossOverBirds(GAME_PickOneBirdBasedOnFitness(birds), GAME_PickOneBirdBasedOnFitness(birds));
 		new_generation[i] = mutate;
 		new_generation[i + 1] = cross;
-	}
+	};
 
-	for (int i = 0; i < NUMBER_OF_BIRDS_PER_GENERATION; i++)
+	for (int i = 0; i < N_MAX_BIRDS; i++)
+	{
 		GAME_DestroyBird(&birds[i]);
-
-	return new_generation;
-}
+		birds[i] = new_generation[i];
+	};
+};
