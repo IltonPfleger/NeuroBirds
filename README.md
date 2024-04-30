@@ -14,7 +14,7 @@ Uma aplicação de algoritmos genéticos que se utilizam de redes neurais para a
 
 Objetivo: Criar um sistema que simule a evolução natural selecionando, mutando e cruzando os melhores indivíduos a cada geração de pássaros. 
 
-Todo o projeto é feito apenas com **SDL/SDL2** e **C** puro, utilizando algumas estruturas dinâmicas como listas encadeadas para os canos e um array para os os pássaros.
+Todo o projeto é feito apenas com **SDL/SDL2** e **C** puro.
 
 ## Sobre a Rede
 A rede neural aplicada a cada pássaro possui apenas uma entrada, 3 neurônios ocultos e uma saída.
@@ -40,7 +40,7 @@ A seleção dos pássaros que passam para as próximas gerações é feita atrav
 
 ## Outras informações:
 
-* Pela simplicidade do jogo, é bastante comum que, dependendo do número de pássaros da geração, que diversos indivíduos nasçam sabendo jogar o jogo.
+* Pela simplicidade do jogo, é bastante comum que, dependendo do número de pássaros da geração, diversos indivíduos nasçam sabendo jogar o jogo.
 
 * Os parâmetros gerais do jogo podem ser alterados nas definições do arquivo **main.c**
 
